@@ -1,0 +1,27 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <div id="wrapper">
+        <div class="row">
+            <div class="col-md-3"></div>
+            <div class="col-md-6">
+                <h1>Create Task</h1>
+                {{ form_start(form) }}
+                <label for="todo_task_description">Description: </label>
+                <textarea class="form-control" id="todo_task_description" name="todo_task[description]" required="required"></textarea>
+                <br>
+
+                <span>
+                    <button class="btn btn-primary" type="submit">Create task</button>
+                </span>
+                {% do form.description.setRendered %}
+                {{ form_end(form) }}
+            </div>
+            <div class="col-md-3"></div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block stylesheets %}
+{% endblock %}
+

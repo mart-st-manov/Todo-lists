@@ -1,0 +1,32 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <div id="wrapper">
+        <div class="row">
+            <div class="col-md-3"></div>
+            <div class="col-md-6">
+                <h1>Login</h1>
+                {{ form_start(form) }}
+                <label for="login_email">E-mail: </label>
+                <input class="form-control" type="email" id="login_email" name="login[email]" required="required">
+                <br>
+
+                <label for="login_password">Password: </label>
+                <input class="form-control" type="password" id="login_password" name="login[password]" required="required">
+                <br>
+
+                <span>
+                    <button class="btn btn-primary" type="submit">Login</button>
+                    <a class="btn btn-default" href="{{ path('register') }}">Register</a>
+                </span>
+                {% do form.email.setRendered %}
+                {% do form.password.setRendered %}
+                {{ form_end(form) }}
+            </div>
+            <div class="col-md-3"></div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block stylesheets %}
+{% endblock %}

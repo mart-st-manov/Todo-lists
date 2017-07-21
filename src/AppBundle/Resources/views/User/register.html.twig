@@ -1,0 +1,36 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <div id="wrapper">
+        <div class="row">
+            <div class="col-md-3"></div>
+            <div class="col-md-6">
+                <h1>Register</h1>
+                {{ form_start(form) }}
+                <label for="user_email">E-mail: </label>
+                <input class="form-control" type="email" id="user_email" name="user[email]" required="required">
+                <br>
+
+                <label for="user_plainPassword_first">Password: </label>
+                <input class="form-control" type="password" id="user_plainPassword_first" name="user[plainPassword][first]" required="required">
+                <br>
+
+                <label for="user_plainPassword_first">Repeat Password: </label>
+                <input class="form-control" type="password" id="user_plainPassword_first" name="user[plainPassword][second]" required="required">
+                <br>
+
+                <span>
+                    <button class="btn btn-primary" type="submit">Register</button>
+                </span>
+                {% do form.email.setRendered %}
+                {% do form.plainPassword.first.setRendered %}
+                {% do form.plainPassword.second.setRendered %}
+                {{ form_end(form) }}
+            </div>
+            <div class="col-md-3"></div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block stylesheets %}
+{% endblock %}

@@ -1,0 +1,26 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <div id="wrapper">
+        <div class="row">
+            <div class="col-md-3"></div>
+            <div class="col-md-6">
+                <h1>Create List</h1>
+                {{ form_start(form) }}
+                <label for="todo_list_name">List name: </label>
+                <input class="form-control" type="text" id="todo_list_name" name="todo_list[name]" required="required">
+                <br>
+
+                <span>
+                    <button class="btn btn-primary" type="submit">Create list</button>
+                </span>
+                {% do form.name.setRendered %}
+                {{ form_end(form) }}
+            </div>
+            <div class="col-md-3"></div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block stylesheets %}
+{% endblock %}
