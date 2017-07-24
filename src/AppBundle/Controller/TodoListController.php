@@ -18,13 +18,17 @@ use Symfony\Component\Form\Form;
 class TodoListController extends Controller
 {
     /**
-     * @Route("/lists/{userId}", name="todo_lists")
+     * @Route("/lists", name="todo_lists")
      * @param Request $request
-     * @param $userId
      * @return \Symfony\Component\HttpFoundation\RedirectResponse|\Symfony\Component\HttpFoundation\Response
      */
-    public function viewListsAction(Request $request, $userId)
+    public function viewListsAction(Request $request)
     {
+        $userId = $this->get('session')->get('loginUserId');
+        if (empty($userId)) {
+            return $this->redirectToRoute('login');
+        }
+
         try {
             /** @var TodoListRepository $listRepo */
             $listRepo = $this->getDoctrine()->getRepository(TodoList::class);
@@ -42,20 +46,23 @@ class TodoListController extends Controller
     }
 
     /**
-     * @Route("/new_list/{userId}", name="new_list")
+     * @Route("/new_list", name="new_list")
      * @param Request $request
-     * @param $userId
      * @return \Symfony\Component\HttpFoundation\RedirectResponse|\Symfony\Component\HttpFoundation\Response
      */
-    public function createListAction(Request $request, $userId)
+    public function createListAction(Request $request)
     {
+        $userId = $this->get('session')->get('loginUserId');
+        if (empty($userId)) {
+            return $this->redirectToRoute('login');
+        }
+
         /** @var TodoList $list */
         $list = new TodoList();
         /** @var Form $form */
         $form = $this->createForm(TodoListType::class, $list);
 
         $form->handleRequest($request);
-
         if ($form->isSubmitted() && $form->isValid()) {
 
             try {
@@ -66,7 +73,6 @@ class TodoListController extends Controller
                 $userRepo = $this->getDoctrine()->getRepository(User::class);
                 /** @var User $user */
                 $user = $userRepo->find($userId);
-
 
                 $list->setName($listName);
                 $list->setUser($user);
@@ -99,6 +105,11 @@ class TodoListController extends Controller
      */
     public function createTaskAction(Request $request, $listId)
     {
+        $userId = $this->get('session')->get('loginUserId');
+        if (empty($userId)) {
+            return $this->redirectToRoute('login');
+        }
+
         /** @var TodoTask $task */
         $task = new TodoTask();
         /** @var Form $form */
@@ -132,7 +143,7 @@ class TodoListController extends Controller
                 $em->persist($list);
                 $em->flush();
 
-                return $this->redirectToRoute('todo_lists', ['userId' => $user->getId()]);
+                return $this->redirectToRoute('todo_lists');
 
             } catch (\Exception $e) {
                 return $this->redirectToRoute('error_page', ['errorCode' => 'tskCrt']);
@@ -152,12 +163,16 @@ class TodoListController extends Controller
      */
     public function changeTaskStatus(Request $request, $taskId)
     {
+        $userId = $this->get('session')->get('loginUserId');
+        if (empty($userId)) {
+            return $this->redirectToRoute('login');
+        }
+
         try {
             /** @var TodoTaskRepository $taskRepo */
             $taskRepo = $this->getDoctrine()->getRepository(TodoTask::class);
             /** @var TodoTask $task */
             $task = $taskRepo->find($taskId);
-            $userId = $task->getUser()->getId();
             $isCompleted = $task->getIsCompleted();
 
             $em = $this->getDoctrine()->getManager();
@@ -171,7 +186,7 @@ class TodoListController extends Controller
             $em->persist($task);
             $em->flush();
 
-            return $this->redirectToRoute('todo_lists', ['userId' => $userId]);
+            return $this->redirectToRoute('todo_lists');
 
         } catch (\Exception $e) {
             return $this->redirectToRoute('error_page', ['errorCode' => 'tskSts']);
@@ -187,18 +202,22 @@ class TodoListController extends Controller
      */
     public function deleteTask(Request $request, $taskId)
     {
+        $userId = $this->get('session')->get('loginUserId');
+        if (empty($userId)) {
+            return $this->redirectToRoute('login');
+        }
+
         try {
             /** @var TodoTaskRepository $taskRepo */
             $taskRepo = $this->getDoctrine()->getRepository(TodoTask::class);
             /** @var TodoTask $task */
             $task = $taskRepo->find($taskId);
-            $userId = $task->getUser()->getId();
 
             $em = $this->getDoctrine()->getManager();
             $em->remove($task);
             $em->flush();
 
-            return $this->redirectToRoute('todo_lists', ['userId' => $userId]);
+            return $this->redirectToRoute('todo_lists');
 
         } catch (\Exception $e) {
             return $this->redirectToRoute('error_page', ['errorCode' => 'tskDel']);
@@ -214,19 +233,23 @@ class TodoListController extends Controller
      */
     public function archiveList(Request $request, $listId)
     {
+        $userId = $this->get('session')->get('loginUserId');
+        if (empty($userId)) {
+            return $this->redirectToRoute('login');
+        }
+
         try {
             /** @var TodoListRepository $listRepo */
             $listRepo = $this->getDoctrine()->getRepository(TodoList::class);
             /** @var TodoList $list */
             $list = $listRepo->find($listId);
-            $userId = $list->getUser()->getId();
 
             $em = $this->getDoctrine()->getManager();
             $list->setIsArchived(true);
             $em->persist($list);
             $em->flush();
 
-            return $this->redirectToRoute('todo_lists', ['userId' => $userId]);
+            return $this->redirectToRoute('todo_lists');
 
         } catch (\Exception $e) {
             return $this->redirectToRoute('error_page', ['errorCode' => 'lstArc']);
@@ -241,23 +264,25 @@ class TodoListController extends Controller
      */
     public function deleteList(Request $request, $listId)
     {
+        $userId = $this->get('session')->get('loginUserId');
+        if (empty($userId)) {
+            return $this->redirectToRoute('login');
+        }
+
         try {
             /** @var TodoListRepository $listRepo */
             $listRepo = $this->getDoctrine()->getRepository(TodoList::class);
             /** @var TodoList $list */
             $list = $listRepo->find($listId);
-            $userId = $list->getUser()->getId();
 
             $em = $this->getDoctrine()->getManager();
             $em->remove($list);
             $em->flush();
 
-            return $this->redirectToRoute('todo_lists', ['userId' => $userId]);
+            return $this->redirectToRoute('todo_lists');
 
         } catch (\Exception $e) {
             return $this->redirectToRoute('error_page', ['errorCode' => 'lstDel']);
         }
-
-
     }
 }

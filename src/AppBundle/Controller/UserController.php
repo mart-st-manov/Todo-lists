@@ -37,7 +37,9 @@ class UserController extends Controller
                 /** @var User $user */
                 $user = $userRepo->getUser($email, $password);
 
-                return $this->redirectToRoute('todo_lists', ['userId' => $user->getId()]);
+                $this->get('session')->set('loginUserId', $user->getId());
+
+                return $this->redirectToRoute('todo_lists');
             } catch (\Exception $e) {
                 return $this->redirectToRoute('error_page', ['errorCode' => 'usrLog']);
             }
