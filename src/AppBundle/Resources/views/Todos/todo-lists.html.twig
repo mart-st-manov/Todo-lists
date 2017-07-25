@@ -19,7 +19,13 @@
                                     {% endif %}
                                 </div>
                                 <div class="col-md-2">
-                                    <a class="btn btn-sm btn-danger" href="{{ path('request_deletion', {'listId': list.id }) }}">Delete</a>
+                                    {% if user.isAdmin %}
+                                        {% if list.isDeletionPending %}
+                                            <a class="btn btn-sm btn-danger" href="{{ path('delete_list', {'listId': list.id }) }}">Delete</a>
+                                        {% endif %}
+                                    {% else %}
+                                        <a class="btn btn-sm btn-danger" href="{{ path('request_deletion', {'listId': list.id }) }}">Delete</a>
+                                    {% endif %}
                                     {% if list.isArchived == false and list.tasks is not empty %}
                                         <a class="btn btn-sm btn-default" href="{{ path('archive_list', {'listId': list.id }) }}">Archive</a>
                                     {% endif %}

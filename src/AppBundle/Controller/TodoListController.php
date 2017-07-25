@@ -191,10 +191,10 @@ class TodoListController extends Controller
 
             $em = $this->getDoctrine()->getManager();
 
-            if (is_null($isCompleted) || !$isCompleted) {
-                $task->setIsCompleted(true);
-            } else {
+            if ($isCompleted == true) {
                 $task->setIsCompleted(false);
+            } else {
+                $task->setIsCompleted(true);
             }
 
             $em->persist($task);
@@ -205,7 +205,6 @@ class TodoListController extends Controller
         } catch (\Exception $e) {
             return $this->redirectToRoute('error_page', ['errorCode' => 'tskSts']);
         }
-
     }
 
     /**
@@ -236,7 +235,6 @@ class TodoListController extends Controller
         } catch (\Exception $e) {
             return $this->redirectToRoute('error_page', ['errorCode' => 'tskDel']);
         }
-
     }
 
     /**
@@ -302,6 +300,45 @@ class TodoListController extends Controller
     }
 
     /**
+     * @Route("/user_lists/{listsUserId}", name="user_lists")
+     * @param Request $request
+     * @param $listsUserId
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function viewUserLists(Request $request, $listsUserId)
+    {
+        $userId = $this->get('session')->get('loginUserId');
+        if (empty($userId)) {
+            return $this->redirectToRoute('login');
+        }
+
+        try {
+            /** @var UserRepository $userRepo */
+            $userRepo = $this->getDoctrine()->getRepository(User::class);
+            /** @var TodoListRepository $listRepo */
+            $listRepo = $this->getDoctrine()->getRepository(TodoList::class);
+
+            /** @var User $user */
+            $user = $userRepo->find($userId);
+            /** @var User $listsUser */
+            $listsUser = $userRepo->find($listsUserId);
+            $listsUserEmail = $listsUser->getEmail();
+            /** @var TodoList $lists */
+            $lists = $listRepo->findBy(["user" => $listsUserId]);
+
+
+            return $this->render('AppBundle::Todos/todo-lists.html.twig', [
+                'pageTitle' => "Lists of user $listsUserEmail",
+                'lists' => $lists,
+                'user' => $user
+            ]);
+
+        } catch (\Exception $e) {
+            return $this->redirectToRoute('error_page', ['errorCode' => 'lstGet']);
+        }
+    }
+
+    /**
      * @Route("/delete_list/{listId}", name="delete_list")
      * @param Request $request
      * @param $listId
@@ -319,12 +356,14 @@ class TodoListController extends Controller
             $listRepo = $this->getDoctrine()->getRepository(TodoList::class);
             /** @var TodoList $list */
             $list = $listRepo->find($listId);
+            /** @var User $listOwner */
+            $listOwner = $list->getUser();
 
             $em = $this->getDoctrine()->getManager();
             $em->remove($list);
             $em->flush();
 
-            return $this->redirectToRoute('todo_lists');
+            return $this->redirectToRoute('user_lists', ['listsUserId' => $listOwner->getId()]);
 
         } catch (\Exception $e) {
             return $this->redirectToRoute('error_page', ['errorCode' => 'lstDel']);
@@ -336,7 +375,6 @@ class TodoListController extends Controller
      * @Template("AppBundle:excel.xlsx.twig")
      * @param Request $request
      * @return \Symfony\Component\HttpFoundation\Response
-     * @throws \Exception
      */
     public function exportListAction(Request $request)
     {
@@ -356,7 +394,6 @@ class TodoListController extends Controller
             ]);
 
         } catch (\Exception $e) {
-            throw $e;
             return $this->redirectToRoute('error_page', ['errorCode' => 'xlsExp']);
         }
     }

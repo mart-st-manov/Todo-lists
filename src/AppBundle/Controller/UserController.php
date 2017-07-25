@@ -22,11 +22,14 @@ class UserController extends Controller
      */
     public function loginAction(Request $request)
     {
+        $userId = $this->get('session')->get('loginUserId');
+        if (!empty($userId)) {
+            return $this->redirectToRoute('todo_lists');
+        }
+
         /** @var Form $form */
         $form = $this->createForm(LoginType::class);
-
         $form->handleRequest($request);
-
         if ($form->isSubmitted() && $form->isValid()) {
             try {
                 $formData = $form->getData();
@@ -79,9 +82,7 @@ class UserController extends Controller
         $user = new User();
         /** @var Form $form */
         $form = $this->createForm(UserType::class, $user);
-
         $form->handleRequest($request);
-
         if ($form->isSubmitted() && $form->isValid()) {
 
             try {
@@ -134,7 +135,6 @@ class UserController extends Controller
             ]);
 
         } catch (\Exception $e) {
-            throw $e;
             return $this->redirectToRoute('error_page', ['errorCode' => 'getUsr']);
         }
     }

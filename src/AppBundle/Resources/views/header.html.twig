@@ -1,11 +1,14 @@
 <nav class="navbar">
     <h2>
         {{ pageTitle }}
-        <a class="btn btn-md btn-primary" href="{{ path('new_list', {'userId': user.id }) }}">Create list</a>
-        {% if user.isAdmin %}
-            <a class="btn btn-md btn-default" href="{{ path('users') }}">View Users</a>
-        {% endif %}
-        <a class="btn btn-md btn-success" href="{{ path('export_lists', {'_filename': "my_lists", '_format': "xlsx"}) }}">Export Lists</a>
-        <a class="btn btn-md btn-default pull-right" href="{{ path('logout') }}">Logout</a>
+        <span class="pull-right">
+            <a class="btn btn-md btn-primary" href="{{ path('new_list', {'userId': user.id }) }}">Create list</a>
+        <a class="btn btn-md btn-success" href="{{ path('export_lists', {'_filename': "my_lists", '_format': "xlsx"}) }}">Export My Todos</a>
+            {% if user.isAdmin %}
+                <a class="btn btn-md btn-default" href="{{ path('users') }}">View Users</a>
+            {% endif %}
+            <a class="btn btn-md btn-default" href="{{ path('logout') }}">Logout</a>
+        </span>
+
     </h2>
 </nav>
