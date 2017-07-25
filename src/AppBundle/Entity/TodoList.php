@@ -36,6 +36,10 @@ class TodoList
      * @ORM\Column(name="is_archived", type="boolean", nullable=true)
      */
     protected $isArchived;
+    /**
+     * @ORM\Column(name="is_deletion_pending", type="boolean", nullable=true)
+     */
+    protected $isDeletionPending;
 
 
     /**
@@ -160,5 +164,29 @@ class TodoList
     public function getIsArchived()
     {
         return $this->isArchived;
+    }
+
+    /**
+     * Set isDeletionPending
+     *
+     * @param boolean $isDeletionPending
+     *
+     * @return TodoList
+     */
+    public function setIsDeletionPending($isDeletionPending)
+    {
+        $this->isDeletionPending = $isDeletionPending;
+
+        return $this;
+    }
+
+    /**
+     * Get isDeletionPending
+     *
+     * @return boolean
+     */
+    public function getIsDeletionPending()
+    {
+        return $this->isDeletionPending;
     }
 }

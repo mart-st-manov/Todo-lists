@@ -19,12 +19,17 @@
                 <input class="form-control" type="password" id="user_plainPassword_first" name="user[plainPassword][second]" required="required">
                 <br>
 
+                <label for="user_isAdmin">Admin: </label>
+                <input type="checkbox" id="user_isAdmin" name="user[isAdmin]">
+                <br>
+
                 <span>
                     <button class="btn btn-primary" type="submit">Register</button>
                 </span>
                 {% do form.email.setRendered %}
                 {% do form.plainPassword.first.setRendered %}
                 {% do form.plainPassword.second.setRendered %}
+                {% do form.isAdmin.setRendered %}
                 {{ form_end(form) }}
             </div>
             <div class="col-md-3"></div>

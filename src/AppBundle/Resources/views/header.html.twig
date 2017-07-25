@@ -1,0 +1,10 @@
+<nav class="navbar">
+    <h2>
+        {{ pageTitle }}
+        <a class="btn btn-md btn-primary" href="{{ path('new_list', {'userId': user.id }) }}">Create list</a>
+        {% if user.isAdmin %}
+            <a class="btn btn-md btn-default" href="{{ path('users') }}">View Users</a>
+        {% endif %}
+        <a class="btn btn-md btn-default pull-right" href="{{ path('logout') }}">Logout</a>
+    </h2>
+</nav>

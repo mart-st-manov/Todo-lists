@@ -1,0 +1,38 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <div id="wrapper">
+        {{ include('AppBundle::header.html.twig') }}
+        <div class="row">
+            <div class="col-md-12">
+                {% if users is not empty %}
+                    <table class="table">
+                        <thead>
+                        <tr>
+                            <th class="col-md-4">E-Mail</th>
+                            <th class="col-md-2">Type</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for user in users %}
+                            <tr>
+                                <td>{{ user.email }}</td>
+                                <td>
+                                    {% if user.isAdmin %}
+                                        Admin
+                                    {% else %}
+                                        User
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block stylesheets %}
+{% endblock %}

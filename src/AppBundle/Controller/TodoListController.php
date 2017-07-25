@@ -12,6 +12,7 @@ use AppBundle\Repository\TodoTaskRepository;
 use AppBundle\Repository\UserRepository;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Form\Form;
 
@@ -32,12 +33,17 @@ class TodoListController extends Controller
         try {
             /** @var TodoListRepository $listRepo */
             $listRepo = $this->getDoctrine()->getRepository(TodoList::class);
+            /** @var UserRepository $userRepo */
+            $userRepo = $this->getDoctrine()->getRepository(User::class);
             /** @var TodoList $lists */
             $lists = $listRepo->findBy(["user" => $userId]);
+            /** @var User $user */
+            $user = $userRepo->find($userId);
 
             return $this->render('AppBundle::Todos/todo-lists.html.twig', [
+                'pageTitle' => "My Todo Lists",
                 'lists' => $lists,
-                'userId' => $userId
+                'user' => $user
             ]);
         } catch (\Exception $e) {
             return $this->redirectToRoute('error_page', ['errorCode' => 'lstGet']);
@@ -93,7 +99,8 @@ class TodoListController extends Controller
         }
 
         return $this->render('AppBundle::Todos/create-list.html.twig', [
-            'form' => $form->createView()
+            'form' => $form->createView(),
+            'pageTitle' => "Create New List",
         ]);
     }
 
@@ -152,6 +159,7 @@ class TodoListController extends Controller
 
         return $this->render('AppBundle::Todos/create-task.html.twig', [
             'form' => $form->createView(),
+            'pageTitle' => "Create New Task",
         ]);
     }
 
@@ -253,6 +261,37 @@ class TodoListController extends Controller
 
         } catch (\Exception $e) {
             return $this->redirectToRoute('error_page', ['errorCode' => 'lstArc']);
+        }
+    }
+
+    /**
+     * @Route("/request_deletion/{listId}", name="request_deletion")
+     * @param Request $request
+     * @param $listId
+     * @return \Symfony\Component\HttpFoundation\RedirectResponse
+     */
+    public function requestListDeletion(Request $request, $listId)
+    {
+        $userId = $this->get('session')->get('loginUserId');
+        if (empty($userId)) {
+            return $this->redirectToRoute('login');
+        }
+
+        try {
+            /** @var TodoListRepository $listRepo */
+            $listRepo = $this->getDoctrine()->getRepository(TodoList::class);
+            /** @var TodoList $list */
+            $list = $listRepo->find($listId);
+
+            $em = $this->getDoctrine()->getManager();
+            $list->setIsDeletionPending(true);
+            $em->persist($list);
+            $em->flush();
+
+            return $this->redirectToRoute('todo_lists');
+
+        } catch (\Exception $e) {
+            return $this->redirectToRoute('error_page', ['errorCode' => 'lstDel']);
         }
     }
 

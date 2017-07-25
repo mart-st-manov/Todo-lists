@@ -8,6 +8,7 @@ use AppBundle\Form\UserType;
 use AppBundle\Repository\UserRepository;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Form\Form;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
@@ -51,6 +52,21 @@ class UserController extends Controller
     }
 
     /**
+     * @Route("/logout", name="logout")
+     * @param Request $request
+     * @return \Symfony\Component\HttpFoundation\RedirectResponse
+     */
+    public function logoutAction(Request $request)
+    {
+        try {
+            $this->get('session')->set('loginUserId', null);
+            return $this->redirectToRoute('login');
+        } catch (\Exception $e) {
+            return $this->redirectToRoute('error_page', ['errorCode' => 'usrLgt']);
+        }
+    }
+
+    /**
      * @Route("/register/", name="register")
      * @param Request $request
      * @param UserPasswordEncoderInterface $passwordEncoder
@@ -85,5 +101,41 @@ class UserController extends Controller
         return $this->render('AppBundle::User/register.html.twig', [
             'form' => $form->createView()
         ]);
+    }
+
+    /**
+     * @Route("/users/", name="users")
+     * @param Request $request
+     * @return \Symfony\Component\HttpFoundation\RedirectResponse|\Symfony\Component\HttpFoundation\Response
+     */
+    public function viewUsers(Request $request)
+    {
+        $userId = $this->get('session')->get('loginUserId');
+        if (empty($userId)) {
+            return $this->redirectToRoute('login');
+        }
+
+        try {
+            /** @var UserRepository $userRepo */
+            $userRepo = $this->getDoctrine()->getRepository(User::class);
+            /** @var User $user */
+            $user = $userRepo->find($userId);
+
+            if (!$user->getIsAdmin()) {
+                return $this->redirectToRoute('error_page', ['errorCode' => 'notAdm']);
+            }
+
+            $users = $userRepo->findAll();
+
+            return $this->render('AppBundle::User/users.html.twig', [
+                'pageTitle' => "Users",
+                'user' => $user,
+                'users' => $users
+            ]);
+
+        } catch (\Exception $e) {
+            throw $e;
+            return $this->redirectToRoute('error_page', ['errorCode' => 'getUsr']);
+        }
     }
 }
