@@ -3,8 +3,8 @@
         <thead>
         <tr>
             <th class="col-md-3">Created on:</th>
-            <th class="col-md-2">Status</th>
             <th class="col-md-4">Description</th>
+            <th class="col-md-2">Status</th>
             <th class="col-md-3">Actions</th>
         </tr>
         </thead>
@@ -12,6 +12,7 @@
         {% for task in list.tasks %}
             <tr>
                 <td>{{ task.createdOn|date('Y-m-d H:i') }}</td>
+                <td>{{ task.description }}</td>
                 <td>
                     {% if task.isCompleted %}
                         Finished
@@ -19,7 +20,6 @@
                         Not Finished
                     {% endif %}
                 </td>
-                <td>{{ task.description }}</td>
                 <td>
                     <a class="btn btn-sm btn-warning" href="{{ path('change_task_status', {'taskId': task.id }) }}">Change
                         status</a>

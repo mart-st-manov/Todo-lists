@@ -1,0 +1,31 @@
+{% xlsdocument %}
+    {% xlssheet 'Worksheet' %}
+        {% xlsrow %}
+            {% xlscell %}My Todo Lists{% endxlscell %}
+        {% endxlsrow %}
+        {% for list in lists %}
+            {% xlsrow %}{% endxlsrow %}
+            {% xlsrow %}
+                {% xlscell %}{{ list.name }}{% endxlscell %}
+            {% endxlsrow %}
+            {% if list.tasks is not empty %}
+                {% for task in list.tasks %}
+                    {% xlsrow %}
+                        {% xlscell %}{% endxlscell %}
+                        {% xlscell %}{{ task.createdOn|date('Y-m-d H:i') }}{% endxlscell %}
+
+                        {% xlscell %}{{ task.description }}{% endxlscell %}
+
+                        {% xlscell %}
+                            {% if task.isCompleted %}
+                                Finished
+                            {% else %}
+                                Not Finished
+                            {% endif %}
+                        {% endxlscell %}
+                    {% endxlsrow %}
+                {% endfor %}
+            {% endif %}
+        {% endfor %}
+    {% endxlssheet %}
+{% endxlsdocument %}

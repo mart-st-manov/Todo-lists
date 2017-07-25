@@ -11,6 +11,7 @@ use AppBundle\Repository\TodoListRepository;
 use AppBundle\Repository\TodoTaskRepository;
 use AppBundle\Repository\UserRepository;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -63,6 +64,11 @@ class TodoListController extends Controller
             return $this->redirectToRoute('login');
         }
 
+        /** @var UserRepository $userRepo */
+        $userRepo = $this->getDoctrine()->getRepository(User::class);
+        /** @var User $user */
+        $user = $userRepo->find($userId);
+
         /** @var TodoList $list */
         $list = new TodoList();
         /** @var Form $form */
@@ -74,11 +80,6 @@ class TodoListController extends Controller
             try {
                 $formData = $form->getData();
                 $listName = $formData->getName();
-
-                /** @var UserRepository $userRepo */
-                $userRepo = $this->getDoctrine()->getRepository(User::class);
-                /** @var User $user */
-                $user = $userRepo->find($userId);
 
                 $list->setName($listName);
                 $list->setUser($user);
@@ -100,6 +101,7 @@ class TodoListController extends Controller
 
         return $this->render('AppBundle::Todos/create-list.html.twig', [
             'form' => $form->createView(),
+            'user' => $user,
             'pageTitle' => "Create New List",
         ]);
     }
@@ -116,6 +118,11 @@ class TodoListController extends Controller
         if (empty($userId)) {
             return $this->redirectToRoute('login');
         }
+
+        /** @var UserRepository $userRepo */
+        $userRepo = $this->getDoctrine()->getRepository(User::class);
+        /** @var User $user */
+        $user = $userRepo->find($userId);
 
         /** @var TodoTask $task */
         $task = new TodoTask();
@@ -134,8 +141,6 @@ class TodoListController extends Controller
                 $listRepo = $this->getDoctrine()->getRepository(TodoList::class);
                 /** @var TodoList $list */
                 $list = $listRepo->find($listId);
-                /** @var User $user */
-                $user = $list->getUser();
 
                 $task->setDescription($taskDesc);
                 $task->setList($list);
@@ -159,6 +164,7 @@ class TodoListController extends Controller
 
         return $this->render('AppBundle::Todos/create-task.html.twig', [
             'form' => $form->createView(),
+            'user' => $user,
             'pageTitle' => "Create New Task",
         ]);
     }
@@ -322,6 +328,36 @@ class TodoListController extends Controller
 
         } catch (\Exception $e) {
             return $this->redirectToRoute('error_page', ['errorCode' => 'lstDel']);
+        }
+    }
+
+    /**
+     * @Route("/export_lists/{_filename}.{_format}", defaults={"_format"="xls","_filename"="example"}, requirements={"_format"="csv|xls|xlsx"}, name="export_lists")
+     * @Template("AppBundle:excel.xlsx.twig")
+     * @param Request $request
+     * @return \Symfony\Component\HttpFoundation\Response
+     * @throws \Exception
+     */
+    public function exportListAction(Request $request)
+    {
+        $userId = $this->get('session')->get('loginUserId');
+        if (empty($userId)) {
+            return $this->redirectToRoute('login');
+        }
+
+        try {
+            /** @var TodoListRepository $listRepo */
+            $listRepo = $this->getDoctrine()->getRepository(TodoList::class);
+            /** @var TodoList $lists */
+            $lists = $listRepo->findBy(["user" => $userId]);
+
+            return $this->render('AppBundle::excel.xlsx.twig', [
+                'lists' => $lists
+            ]);
+
+        } catch (\Exception $e) {
+            throw $e;
+            return $this->redirectToRoute('error_page', ['errorCode' => 'xlsExp']);
         }
     }
 }

@@ -5,6 +5,7 @@
         {% if user.isAdmin %}
             <a class="btn btn-md btn-default" href="{{ path('users') }}">View Users</a>
         {% endif %}
+        <a class="btn btn-md btn-success" href="{{ path('export_lists', {'_filename': "my_lists", '_format': "xlsx"}) }}">Export Lists</a>
         <a class="btn btn-md btn-default pull-right" href="{{ path('logout') }}">Logout</a>
     </h2>
 </nav>
